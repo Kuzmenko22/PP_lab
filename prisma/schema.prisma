@@ -14,18 +14,6 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
-
-    @@index([name])
-}
-
 // Necessary for Next auth
 model Account {
     id                       String  @id @default(cuid())
@@ -56,13 +44,22 @@ model Session {
 
 model User {
     id            String    @id @default(cuid())
+    firstname     String?
+    surname       String?
     name          String?
     email         String?   @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
-    posts         Post[]
+
+    group    Group?  @relation(fields: [groupId], references: [id])
+    groupId  String?
+    subgroup Int     @default(1)
+
+    studentTask StudentsOnTasks[]
+    tutorTask   Squad[]
+    grade       Grade[]
 }
 
 model VerificationToken {
@@ -71,4 +68,57 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+model Group {
+    id    String @id @default(cuid())
+    name  String @unique
+    users User[]
+}
+
+// Лекции, лабы-пары, лабы-задания ...
+model TaskType {
+    id    String @id @default(cuid())
+    name  String @unique
+    tasks Task[]
+}
+
+model Task {
+    id    String @id @default(cuid())
+    name  String @unique
+    value Int    @default(1)
+
+    taskType   TaskType @relation(fields: [taskTypeId], references: [id])
+    taskTypeId String
+    squades    Squad[]
+    grades     Grade[]
+}
+
+model Squad {
+    id      String   @id @default(cuid())
+    task    Task     @relation(fields: [taskId], references: [id])
+    taskId  String
+    date    DateTime
+    tutor   User?    @relation(fields: [tutorId], references: [id])
+    tutorId String?
+
+    StudentsOnTasks StudentsOnTasks[]
+}
+
+model StudentsOnTasks {
+    student   User   @relation(fields: [studentId], references: [id])
+    studentId String
+    squad     Squad  @relation(fields: [squadId], references: [id], onDelete: Cascade)
+    squadId   String
+
+    @@id([studentId, squadId])
+}
+
+model Grade {
+    id        String @id @default(cuid())
+    task      Task   @relation(fields: [taskId], references: [id])
+    taskId    String
+    student   User   @relation(fields: [studentId], references: [id])
+    studentId String
+    value     Int
 }
