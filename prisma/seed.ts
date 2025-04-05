@@ -115,64 +115,64 @@ async function main() {
     }),
   );
 
-  // await Promise.all(
-  //   taskTypes.map(async (taskType) => {
-  //     await prisma.taskType.upsert({
-  //       where: { name: taskType.name },
-  //       update: {},
-  //       create: {
-  //         name: taskType.name,
-  //       },
-  //     });
-  //   }),
-  // );
+  await Promise.all(
+     taskTypes.map(async (taskType) => {
+       await prisma.taskType.upsert({
+         where: { name: taskType.name },
+         update: {},
+         create: {
+           name: taskType.name,
+         },
+       });
+     }),
+   );
 
-  // const lec = await prisma.taskType.findUnique({ where: { name: "Лекция" } });
-  // await Promise.all(
-  //   tasks.map(async (task) => {
-  //     await prisma.task.upsert({
-  //       where: { name: task },
-  //       update: {},
-  //       create: {
-  //         name: task,
-  //         taskTypeId: lec?.id || "",
-  //       },
-  //     });
-  //   }),
-  // );
+  const lec = await prisma.taskType.findUnique({ where: { name: "Лекция" } });
+  await Promise.all(
+    tasks.map(async (task) => {
+      await prisma.task.upsert({
+        where: { name: task },
+        update: {},
+        create: {
+          name: task,
+          taskTypeId: lec?.id || "",
+        },
+      });
+    }),
+  );
 
-  // const lec1 = await prisma.task.findUnique({
-  //   where: { name: "Лекция. Введение" },
-  // });
-  // await prisma.squad.deleteMany({});
-  // await Promise.all(
-  //   squads.map(async (squad) => {
-  //     const tutor = await prisma.user.findFirstOrThrow({
-  //       where: { surname: squad.tutor },
-  //     });
-  //     const s = squad.students.map((s) => s[0]) as string[];
-  //     const students = await prisma.user.findMany({
-  //       where: { surname: { in: s } },
-  //     });
-  //     const sq = await prisma.squad.create({
-  //       data: {
-  //         taskId: lec1?.id || "",
-  //         tutorId: tutor.id,
-  //         date: new Date(),
-  //       },
-  //     });
-  //     await Promise.all(
-  //       students.map(async (student) => {
-  //         await prisma.studentsOnTasks.create({
-  //           data: {
-  //             studentId: student.id,
-  //             squadId: sq.id,
-  //           },
-  //         });
-  //       }),
-  //     );
-  //   }),
-  // );
+  const lec1 = await prisma.task.findUnique({
+     where: { name: "Лекция. Введение" },
+   });
+   await prisma.squad.deleteMany({});
+   await Promise.all(
+     squads.map(async (squad) => {
+       const tutor = await prisma.user.findFirstOrThrow({
+         where: { surname: squad.tutor },
+       });
+       const s = squad.students.map((s) => s[0]) as string[];
+       const students = await prisma.user.findMany({
+         where: { surname: { in: s } },
+       });
+       const sq = await prisma.squad.create({
+         data: {
+           taskId: lec1?.id || "",
+           tutorId: tutor.id,
+           date: new Date(),
+         },
+       });
+       await Promise.all(
+         students.map(async (student) => {
+           await prisma.studentsOnTasks.create({
+             data: {
+               studentId: student.id,
+               squadId: sq.id,
+             },
+           });
+         }),
+       );
+     }),
+   );
 }
 
 main()
