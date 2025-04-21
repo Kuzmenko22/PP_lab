@@ -9,9 +9,13 @@ import CheckIcon from "@heroicons/react/24/outline/CheckIcon";
 export function Students({
   taskId,
   squadId,
+  mode,
+  squadTutorId,
 }: {
   taskId: string;
   squadId: string;
+  mode: boolean;
+  squadTutorId: string;
 }) {
   //const h = api.post.hello.useQuery({ text: "world" });
   //console.log("\n\nTRPC\n\n", h.data);
@@ -20,17 +24,19 @@ export function Students({
   const students =
     api.user.getStudentBySquad.useQuery({ squadId: squadId }).data ?? [];
   const grades = api.grade.getByTask.useQuery({ taskId }).data ?? [];
-  const r = api.user.getByQuery.useQuery({ query: search }).data;
-  const addStudentMutation = api.squad.addStudent.useMutation();
-  const deleteStudentMutation = api.squad.deleteStudent.useMutation();
-  const createGradeMutation = api.grade.create.useMutation();
-  const utils = api.useUtils();
 
   const studentsWithGrades = students.map((s) => {
     const g = grades.find((g) => g.studentId === s.id);
     return { ...s, value: g?.value ?? 0 };
   });
   console.log(studentsWithGrades);
+
+if (mode){
+  const r = api.user.getByQuery.useQuery({ query: search }).data;
+  const addStudentMutation = api.squad.addStudent.useMutation();
+  const deleteStudentMutation = api.squad.deleteStudent.useMutation();
+  const createGradeMutation = api.grade.create.useMutation();
+  const utils = api.useUtils();
 
   const handleSearch = (value: string) => {
     setSearch(value);
@@ -70,6 +76,7 @@ export function Students({
           taskId,
           studentId: studentId,
           value: Number(values),
+          squadTutorId: squadTutorId,
         },
         {
           onSuccess: () => {
@@ -78,6 +85,7 @@ export function Students({
         },
       );
   };
+
   return (
     <div>
       <table className="m-4 box-border">
@@ -129,5 +137,19 @@ export function Students({
         </button>
       )}
     </div>
+  );
+  }
+  return (
+    <table className="m-4 box-border">
+      <tbody>
+        {studentsWithGrades.map((s) => (
+          <tr key={s.id}>
+            <td className="px-2">{s?.firstname}</td>
+            <td className="px-2">{s?.surname}</td>
+            <td className="px-2">{s.value}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }

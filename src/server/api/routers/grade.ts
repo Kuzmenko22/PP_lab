@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { isAdminOrCurrentTutor } from "~/app/api/auth/check";
 
 export const gradeRouter = createTRPCRouter({
   create: protectedProcedure
@@ -8,9 +9,11 @@ export const gradeRouter = createTRPCRouter({
         taskId: z.string(),
         studentId: z.string(),
         value: z.coerce.number(),
+        squadTutorId: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      if (!(await isAdminOrCurrentTutor(input.squadTutorId))) throw new Error("Unauthorized");
       return ctx.db.grade.create({
         data: {
           taskId: input.taskId,

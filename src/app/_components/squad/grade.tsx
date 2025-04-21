@@ -16,7 +16,7 @@ export function Grade({
   const set = api.grade.create.useMutation();
   console.log(grades.data);
   const onSetHandler = () => {
-    set.mutate({ taskId, studentId, value: Number(valRef.current?.value) });
+    set.mutate({ taskId, studentId, value: Number(valRef.current?.value), squadTutorId: "" });
   };
 
   return (

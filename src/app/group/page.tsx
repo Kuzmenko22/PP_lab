@@ -21,17 +21,17 @@ export default async function Page(props: {
   const size = Number(searchParams?.size) || 3;
 
   const count = await db.group.count();
-  const groups = await db.group.findMany({
+  /*const groups = await db.group.findMany({
     skip: (page - 1) * size,
     take: size,
-  });
+  });*/
   const pages = Math.ceil(Number(count) / size);
 
   return (
     <>
       <h1>Group page</h1>
       <AddGroup />
-      <GroupTable groups={groups} />
+      <GroupTable page={page} size={size}/>
       <Pagination totalPages={pages} />
     </>
   );

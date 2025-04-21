@@ -1,37 +1,10 @@
-import Link from "next/link";
+"use client";
+
 import React from "react";
 import { deleteUser, updateUser } from "~/app/api/action/user";
-import { auth } from "~/server/auth";
-import { db } from "~/server/db";
-import { AdminUserForm } from "~/app/_components/user/adminRole";
-import { UserInfo } from "~/app/_components/user/userRole";
 
-export default async function Page(
-  props: { params: Promise<{ id: string }> }
-) {
-  const role = (await auth())?.user.role
-
-  const params = await props.params;
-  const user = await db.user.findUnique({ where: { id: params.id }, include: {
-    group: true,
-  } });
-  if (!user)
-    return (
-      <main>
-        <h1>User not found</h1>
-      </main>
-  );
-
-  const groupJSX = user?.group && <><label>Группа</label><Link className="btn"  href={"/group/" + user?.group.id}>{user?.group.name + "-" + user.subgroup}</Link></>;
-  
-    if (role === "ADMIN") {
-      return <AdminUserForm user={user} groupJSX={groupJSX} />;
-    }
-  
-    return <UserInfo user={user} groupJSX={groupJSX} />;
-  }
-
-  /*if (role == "ADMIN") return (
+export function AdminUserForm({ user, groupJSX }: { user: any; groupJSX: React.ReactNode }) {
+  return (
     <main>
       <form action={updateUser} className="form-control">
         <div className="flex max-w-xs flex-col space-y-2">
@@ -87,15 +60,4 @@ export default async function Page(
       </form>
     </main>
   );
-
-  return (
-    <main>
-      <h1>Данные пользователя</h1>
-      <p>Электронная почта: {user.email}</p>
-      <p>Имя: {user.firstname}</p>
-      <p>Фамилия: {user.surname}</p>
-      <p>Роль: {user.role}</p>
-      {groupJSX}
-    </main>
-  )
-}*/
+}

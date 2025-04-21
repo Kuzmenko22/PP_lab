@@ -29,9 +29,12 @@ export default async function Page(props: {
   //export default async function Home() {
   //const users = await db.user.findMany()
 
+  const role = (await auth())?.user.role
+
   return (
     <>
       <h1>User page</h1>
+      {/*role === "ADMIN" && <AddUser />*/}
       <AddUser />
       <UserTable users={users} />
       <Pagination totalPages={pages} />

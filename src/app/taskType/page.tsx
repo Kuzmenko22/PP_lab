@@ -3,6 +3,7 @@ import { db } from "~/server/db";
 import Pagination from "../ui/pagination";
 import TaskTypeTable from "../_components/taskType/table";
 import { AddTaskGroup } from "../_components/taskType/add";
+import { auth } from "~/server/auth";
 
 export default async function Page(props: {
   searchParams?: Promise<{
@@ -22,9 +23,12 @@ export default async function Page(props: {
 
   const pages = Math.ceil(Number(count) / size);
 
+  const role = (await auth())?.user.role
+  const mode = role === "ADMIN" || role === "TUTOR"
+
   return (
     <div>
-      <AddTaskGroup />
+      {mode && <AddTaskGroup />}
       <TaskTypeTable tasks={taskGroups} />
       <Pagination totalPages={pages} />
     </div>
